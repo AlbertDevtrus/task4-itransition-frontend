@@ -1,6 +1,7 @@
 import { ActionFunction, redirect } from "react-router-dom";
 import axiosClient from "../config/axios";
 
+
 interface LoginResponse {
     msg: string;
     id: string;
@@ -12,15 +13,14 @@ export const loginAction: ActionFunction = async ({ request }) => {
     const email = formData.get('email');
     const password = formData.get('password');
 
-    const response: LoginResponse = await axiosClient.post('/auth/login', { email, password })
-        .then(res => res.data)
-        .catch(response => {
-            if(response.status === 200) {
-                console.log('Not success')
-            }
-        });
+    try {
+        const response: LoginResponse = await axiosClient.post('/auth/login', { email, password })
+            .then(res => res.data);
+        localStorage.setItem('token', response.token);
+        return window.location.replace('/');
+    } catch (error) {
+        console.error('Login fail')        
+        return redirect('/login');
+    }
 
-    localStorage.setItem('token', response.token);
-    
-    return redirect('/');
 }
